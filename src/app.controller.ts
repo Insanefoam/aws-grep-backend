@@ -1,4 +1,5 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Header } from '@nestjs/common';
+import { AwsS3Service } from 'aws-s3/aws-s3.service';
 import { AppService } from './app.service';
 
 @Controller()
