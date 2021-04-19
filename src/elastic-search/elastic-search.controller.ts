@@ -1,4 +1,30 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { CredentialsDto } from 'aws-s3/aws-s3.dto';
+import { AwsCredentials } from 'storage/decorators';
+import { AwsCredentialsGuard } from 'storage/guards';
+import { ElasticSearchService } from './elastic-search.service';
 
+@ApiTags('search')
 @Controller('elastic-search')
-export class ElasticSearchController {}
+@UseGuards(AwsCredentialsGuard)
+export class ElasticSearchController {
+  constructor(private readonly service: ElasticSearchService) {}
+
+  @Post('index-objects/:bucket')
+  async indexAllObjects(
+    @AwsCredentials() credentials: CredentialsDto,
+    @Param('bucket') bucketName: string,
+  ) {
+    return this.service.indexAllObjects(credentials, bucketName);
+  }
+
+  @Get('search/:searchString')
+  async search(
+    @AwsCredentials() credentials: CredentialsDto,
+    @Param('searchString') searchString,
+  ) {
+    const elasticIndex = credentials.credentials.accessKeyId.toLowerCase();
+    return this.service.searchFromIndex(elasticIndex, searchString);
+  }
+}
