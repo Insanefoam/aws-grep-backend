@@ -1,10 +1,46 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
+import { CredentialsDto } from 'aws-s3/aws-s3.dto';
+import { AwsS3Service } from 'aws-s3/aws-s3.service';
 import { ElasticDocumentDto } from './elastic-search.dto';
 
 @Injectable()
 export class ElasticSearchService {
-  constructor(private readonly client: ElasticsearchService) {}
+  constructor(
+    private readonly client: ElasticsearchService,
+    private readonly s3Service: AwsS3Service,
+  ) {}
+
+  async indexAllObjects(credentials: CredentialsDto, bucketName: string) {
+    const bucketObjects = await this.s3Service.getAllBucketObjects(
+      credentials,
+      bucketName,
+    );
+
+    try {
+      const elasticIndex = credentials.credentials.accessKeyId.toLowerCase();
+
+      bucketObjects.forEach(async (obj) => {
+        const fullObject = await this.s3Service.getObject(
+          credentials,
+          bucketName,
+          obj.name,
+        );
+
+        this.addToIndex(elasticIndex, {
+          bucketName,
+          title: fullObject.name,
+          text: fullObject.data,
+        });
+      });
+    } catch (e) {
+      throw new InternalServerErrorException(
+        'Something went wrong when indexing',
+      );
+    }
+
+    return true;
+  }
 
   async addToIndex(
     index: string,
