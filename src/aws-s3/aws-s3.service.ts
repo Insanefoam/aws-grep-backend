@@ -61,11 +61,7 @@ export class AwsS3Service {
           }
 
           const bytes = data.Body as Buffer;
-          const parsedJson = JSON.stringify(
-            JSON.parse(bytes.toString('utf8')),
-            null,
-            0,
-          );
+          const parsedJson = JSON.stringify(bytes.toString('utf8'), null, 0);
 
           resolve({
             name: objectKey,
