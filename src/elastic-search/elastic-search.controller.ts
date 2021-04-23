@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { CredentialsDto } from 'aws-s3/aws-s3.dto';
+import { AwsCredentialsDto } from 'aws-s3/aws-s3.dto';
 import { AwsCredentials } from 'storage/decorators';
 import { AwsCredentialsGuard } from 'storage/guards';
 import { ElasticSearchService } from './elastic-search.service';
@@ -13,7 +13,7 @@ export class ElasticSearchController {
 
   @Post('index-objects/:bucket')
   async indexAllObjects(
-    @AwsCredentials() credentials: CredentialsDto,
+    @AwsCredentials() credentials: AwsCredentialsDto,
     @Param('bucket') bucketName: string,
   ) {
     return this.service.indexAllObjects(credentials, bucketName);
@@ -21,7 +21,7 @@ export class ElasticSearchController {
 
   @Get('search/:searchString')
   async search(
-    @AwsCredentials() credentials: CredentialsDto,
+    @AwsCredentials() credentials: AwsCredentialsDto,
     @Param('searchString') searchString,
   ) {
     const elasticIndex = credentials.credentials.accessKeyId.toLowerCase();

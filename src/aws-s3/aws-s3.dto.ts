@@ -1,4 +1,4 @@
-export type CredentialsDto = {
+export type AwsCredentialsDto = {
   region: string;
   credentials: {
     accessKeyId: string;

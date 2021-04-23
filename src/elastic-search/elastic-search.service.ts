@@ -1,6 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
-import { CredentialsDto } from 'aws-s3/aws-s3.dto';
+import { AwsCredentialsDto } from 'aws-s3/aws-s3.dto';
 import { AwsS3Service } from 'aws-s3/aws-s3.service';
 import { ElasticDocumentDto } from './elastic-search.dto';
 
@@ -11,7 +11,7 @@ export class ElasticSearchService {
     private readonly s3Service: AwsS3Service,
   ) {}
 
-  async indexAllObjects(credentials: CredentialsDto, bucketName: string) {
+  async indexAllObjects(credentials: AwsCredentialsDto, bucketName: string) {
     const bucketObjects = await this.s3Service.getAllBucketObjects(
       credentials,
       bucketName,

@@ -1,21 +1,17 @@
-import { AWS_BUCKET_NAME } from '@constants';
 import { Inject, Injectable } from '@nestjs/common';
 import S3 from 'aws-sdk/clients/s3';
-import { CredentialsDto, AwsObjectDto } from './aws-s3.dto';
+import { AwsCredentialsDto, AwsObjectDto } from './aws-s3.dto';
 
 @Injectable()
 export class AwsS3Service {
-  private readonly bucketName = AWS_BUCKET_NAME;
-  private readonly linkExpires = 60 * 60 * 10;
-
   constructor(@Inject('S3_STORAGE') private readonly storage: S3) {}
 
-  configureCredentials({ region, credentials }: CredentialsDto) {
+  configureCredentials({ region, credentials }: AwsCredentialsDto) {
     this.storage.config.region = region;
     this.storage.config.credentials = credentials;
   }
 
-  async getAllBuckets(credentials: CredentialsDto): Promise<string[]> {
+  async getAllBuckets(credentials: AwsCredentialsDto): Promise<string[]> {
     this.configureCredentials(credentials);
 
     return await new Promise<string[]>((resolve) => {
@@ -27,8 +23,24 @@ export class AwsS3Service {
     });
   }
 
+  async validateCredentials(credentials: AwsCredentialsDto) {
+    this.configureCredentials(credentials);
+
+    const isValid = await new Promise<boolean>((resolve, reject) => {
+      this.storage.listBuckets((err, data) => {
+        if (data) {
+          resolve(true);
+        }
+
+        resolve(false);
+      });
+    });
+
+    return isValid;
+  }
+
   async getAllBucketObjects(
-    credentials: CredentialsDto,
+    credentials: AwsCredentialsDto,
     bucketName: string,
   ): Promise<AwsObjectDto[]> {
     this.configureCredentials(credentials);
@@ -46,7 +58,7 @@ export class AwsS3Service {
   }
 
   async getObject(
-    credentials: CredentialsDto,
+    credentials: AwsCredentialsDto,
     bucketName: string,
     objectKey: string,
   ): Promise<AwsObjectDto> {
