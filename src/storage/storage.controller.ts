@@ -26,22 +26,22 @@ export class StorageController {
     return this.awsService.getAllBuckets(credentials);
   }
 
-  @Get('/buckets/:name/objects')
+  @Get('/buckets/:bucket/objects')
   @ApiOperation({ summary: 'Retrieves all object from bucket' })
   @ApiOkResponse({ type: AwsObjectDto, isArray: true })
   getAllBucketObject(
     @AwsCredentials() credentials: AwsCredentialsDto,
-    @Param('name') bucketName,
+    @Param('bucket') bucketName: string,
   ) {
     return this.awsService.getAllBucketObjects(credentials, bucketName);
   }
 
-  @Get('/buckets/:name/objects/:objectKey')
+  @Get('/buckets/:bucket/objects/:objectKey')
   @ApiOperation({ summary: 'Retrieves one object from bucket' })
   @ApiOkResponse({ type: AwsObjectDto })
   getOneObject(
     @AwsCredentials() credentials: AwsCredentialsDto,
-    @Param('name') bucketName,
+    @Param('bucket') bucketName: string,
     @Param('objectKey') objectKey,
   ) {
     return this.awsService.getObject(credentials, bucketName, objectKey);

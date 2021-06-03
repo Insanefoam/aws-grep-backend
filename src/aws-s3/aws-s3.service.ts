@@ -11,6 +11,17 @@ export class AwsS3Service {
     this.storage.config.credentials = credentials;
   }
 
+  async validateBucket(
+    credentials: AwsCredentialsDto,
+    bucketName: string,
+  ): Promise<boolean> {
+    this.configureCredentials(credentials);
+
+    const allBuckets = await this.getAllBuckets(credentials);
+
+    return allBuckets.includes(bucketName);
+  }
+
   async getAllBuckets(credentials: AwsCredentialsDto): Promise<string[]> {
     this.configureCredentials(credentials);
 
